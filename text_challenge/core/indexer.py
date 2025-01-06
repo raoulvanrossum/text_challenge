@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import json
 import os
 from loguru import logger
+from tqdm import tqdm
 
 
 @dataclass
@@ -86,7 +87,10 @@ class TextIndexer:
         """
         try:
             points = []
-            for pt in processed_texts:
+            # Add progress bar for processing texts
+            for pt in tqdm(processed_texts,
+                           desc="Processing texts for indexing",
+                           unit="text"):
                 point_id = str(uuid.uuid4())
                 points.append(models.PointStruct(
                     id=point_id,
@@ -100,11 +104,19 @@ class TextIndexer:
                 ))
                 self.metadata[point_id] = pt.metadata or {}
 
-            self.client.upsert(
-                collection_name=self.collection_name,
-                points=points
-            )
-            logger.info(f"Added {len(points)} texts to the index")
+            logger.info(f"Inserting {len(points)} points into the index...")
+            # Use tqdm to show progress during upsert
+            batch_size = 100
+            for i in tqdm(range(0, len(points), batch_size),
+                          desc="Uploading to Qdrant",
+                          unit="batch"):
+                batch = points[i:i + batch_size]
+                self.client.upsert(
+                    collection_name=self.collection_name,
+                    points=batch
+                )
+
+            logger.info(f"Successfully added {len(points)} texts to the index")
         except Exception as e:
             logger.error(f"Error adding texts: {e}")
             raise
@@ -131,7 +143,6 @@ class TextIndexer:
                 score_threshold=threshold
             )
 
-            # Sort by score in descending order for consistent results
             results.sort(key=lambda x: x.score, reverse=True)
 
             return [
@@ -171,34 +182,35 @@ class TextIndexer:
             vectors_data = []
             offset = None
 
-            while True:
-                # Scroll through all points in batches
-                batch, offset = self.client.scroll(
-                    collection_name=self.collection_name,
-                    limit=100,
-                    offset=offset,
-                    with_vectors=True,  # Important: explicitly request vectors
-                    with_payload=True
-                )
+            with tqdm(desc="Exporting vectors", unit="batch") as pbar:
+                while True:
+                    batch, offset = self.client.scroll(
+                        collection_name=self.collection_name,
+                        limit=100,
+                        offset=offset,
+                        with_vectors=True,
+                        with_payload=True
+                    )
 
-                if not batch:
-                    break
+                    if not batch:
+                        break
 
-                for point in batch:
-                    # Ensure vector is properly serialized as a list
-                    if point.vector is None:
-                        logger.warning(f"Skipping point {point.id} with no vector")
-                        continue
+                    for point in batch:
+                        if point.vector is None:
+                            logger.warning(f"Skipping point {point.id} with no vector")
+                            continue
 
-                    vector_list = point.vector.tolist() if hasattr(point.vector, 'tolist') else list(point.vector)
-                    vectors_data.append({
-                        "id": point.id,
-                        "vector": vector_list,
-                        "payload": point.payload
-                    })
+                        vector_list = point.vector.tolist() if hasattr(point.vector, 'tolist') else list(point.vector)
+                        vectors_data.append({
+                            "id": point.id,
+                            "vector": vector_list,
+                            "payload": point.payload
+                        })
 
-                if offset is None:
-                    break
+                    pbar.update(len(batch))
+
+                    if offset is None:
+                        break
 
             with open(os.path.join(path, "vectors.json"), "w") as f:
                 json.dump(vectors_data, f)
@@ -223,22 +235,23 @@ class TextIndexer:
             self.collection_name = state["config"]["collection_name"]
             self.dimension = state["config"]["dimension"]
 
-            # Ensure collection exists
             self._ensure_collection()
 
             # Load vectors
             with open(os.path.join(path, "vectors.json"), "r") as f:
                 vectors_data = json.load(f)
 
-            # Insert vectors in batches
+            # Insert vectors in batches with progress bar
             batch_size = 100
             total_batches = (len(vectors_data) + batch_size - 1) // batch_size
 
-            for i in range(0, len(vectors_data), batch_size):
+            for i in tqdm(range(0, len(vectors_data), batch_size),
+                          desc="Loading vectors",
+                          total=total_batches,
+                          unit="batch"):
                 batch = vectors_data[i:i + batch_size]
                 points = []
                 for item in batch:
-                    # Validate vector data
                     if not isinstance(item["vector"], list):
                         logger.warning(f"Skipping invalid vector format for item {item['id']}")
                         continue
@@ -253,12 +266,11 @@ class TextIndexer:
                         payload=item["payload"]
                     ))
 
-                if points:  # Only upsert if we have valid points
+                if points:
                     self.client.upsert(
                         collection_name=self.collection_name,
                         points=points
                     )
-                    logger.info(f"Loaded batch {i // batch_size + 1}/{total_batches}")
 
             logger.info(f"Loaded index from {path} with {len(vectors_data)} vectors")
         except Exception as e:
