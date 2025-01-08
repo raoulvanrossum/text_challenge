@@ -277,6 +277,42 @@ class TextIndexer:
             logger.error(f"Error loading index: {e}")
             raise
 
+    def get_languages_summary(self) -> Dict[str, int]:
+        """
+        Get a summary of languages in the index.
+
+        Returns:
+            Dict[str, int]: Dictionary with language codes as keys and counts as values
+        """
+        try:
+            language_counts = {}
+            offset = None
+
+            while True:
+                batch, offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    limit=100,
+                    offset=offset,
+                    with_payload=True
+                )
+
+                if not batch:
+                    break
+
+                for point in batch:
+                    language = point.payload.get("language", "unknown")
+                    language_counts[language] = language_counts.get(language, 0) + 1
+
+                if offset is None:
+                    break
+
+            return language_counts
+
+        except Exception as e:
+            logger.error(f"Error getting language summary: {e}")
+            return {}
+
+
     def __len__(self) -> int:
         """Return the number of documents in the index"""
         return self.ntotal

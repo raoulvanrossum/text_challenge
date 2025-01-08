@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from loguru import logger
 from langdetect import detect, LangDetectException
 from sentence_transformers import SentenceTransformer
+from functools import lru_cache
 
 
 @dataclass
@@ -75,6 +76,7 @@ class TextProcessor:
             logger.warning(f"Could not detect language for text: {text[:100]}...")
             return "unknown"
 
+    @lru_cache(maxsize=1000)
     def generate_embedding(self, text: str) -> List[float]:
         """
         Generate embedding vector for the input text.

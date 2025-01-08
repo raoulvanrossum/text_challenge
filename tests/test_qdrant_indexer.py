@@ -1,5 +1,5 @@
 import pytest
-from text_challenge.core.indexer import TextIndexer, ProcessedText, SearchResult
+from text_challenge.core.indexer import TextIndexer, ProcessedText
 
 
 @pytest.fixture

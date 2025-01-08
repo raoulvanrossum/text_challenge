@@ -24,7 +24,7 @@ class SearchResultItem:
     text: str
     similarity: float
     language: str
-    explanation: Dict[str, Any]
+    explanation: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
