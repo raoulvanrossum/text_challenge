@@ -8,6 +8,7 @@ from text_challenge.api.endpoints import router, initialize_service
 from text_challenge.service.patent_service import PatentSearchService
 from text_challenge.data_manager.data_manager import ProcessingConfig
 from text_challenge.utils.logger import setup_logging
+from text_challenge.config import model, embedding_size
 
 app = FastAPI(title="Patent Search API")
 
@@ -52,8 +53,9 @@ async def startup_event():
 
     # Initialize service
     service = PatentSearchService(
-        model_name="intfloat/multilingual-e5-small", config=config
+        model_name=model, config=config
     )
+    #embed-multilingual-light-v3.0
 
     # Load the data
     service.initialize_with_data(data_path)

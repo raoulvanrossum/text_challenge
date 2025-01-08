@@ -11,6 +11,7 @@ from tqdm import tqdm
 from qdrant_client.http import models
 from qdrant_client import QdrantClient
 
+from text_challenge.config import embedding_size
 
 @dataclass
 class ProcessedText:
@@ -32,7 +33,7 @@ class TextIndexer:
     def __init__(
         self,
         collection_name: str = "patent_abstracts",
-        dimension: int = 384,
+        dimension: int = embedding_size,
         url: Optional[str] = None,
         load_from: Optional[str] = None,
     ):
