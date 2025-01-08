@@ -1,13 +1,15 @@
-from typing import List, Optional, Dict
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
 import uuid
-from datetime import datetime
-from dataclasses import dataclass
 import json
 import os
+
+from datetime import datetime
+from typing import List, Optional, Dict
+from dataclasses import dataclass
 from loguru import logger
 from tqdm import tqdm
+
+from qdrant_client.http import models
+from qdrant_client import QdrantClient
 
 
 @dataclass
@@ -27,11 +29,13 @@ class SearchResult:
 
 
 class TextIndexer:
-    def __init__(self,
-                 collection_name: str = "patent_abstracts",
-                 dimension: int = 384,
-                 url: Optional[str] = None,
-                 load_from: Optional[str] = None):
+    def __init__(
+        self,
+        collection_name: str = "patent_abstracts",
+        dimension: int = 384,
+        url: Optional[str] = None,
+        load_from: Optional[str] = None,
+    ):
         """Initialize the TextIndexer with Qdrant vector database
 
         Args:
@@ -70,9 +74,8 @@ class TextIndexer:
                 self.client.create_collection(
                     collection_name=self.collection_name,
                     vectors_config=models.VectorParams(
-                        size=self.dimension,
-                        distance=models.Distance.COSINE
-                    )
+                        size=self.dimension, distance=models.Distance.COSINE
+                    ),
                 )
                 logger.info(f"Created new collection: {self.collection_name}")
         except Exception as e:
@@ -88,43 +91,43 @@ class TextIndexer:
         try:
             points = []
             # Add progress bar for processing texts
-            for pt in tqdm(processed_texts,
-                           desc="Processing texts for indexing",
-                           unit="text"):
+            for pt in tqdm(
+                processed_texts, desc="Processing texts for indexing", unit="text"
+            ):
                 point_id = str(uuid.uuid4())
-                points.append(models.PointStruct(
-                    id=point_id,
-                    vector=pt.embedding,
-                    payload={
-                        "text": pt.text,
-                        "language": pt.language,
-                        "metadata": pt.metadata or {},
-                        "timestamp": datetime.now().isoformat()
-                    }
-                ))
+                points.append(
+                    models.PointStruct(
+                        id=point_id,
+                        vector=pt.embedding,
+                        payload={
+                            "text": pt.text,
+                            "language": pt.language,
+                            "metadata": pt.metadata or {},
+                            "timestamp": datetime.now().isoformat(),
+                        },
+                    )
+                )
                 self.metadata[point_id] = pt.metadata or {}
 
             logger.info(f"Inserting {len(points)} points into the index...")
             # Use tqdm to show progress during upsert
             batch_size = 100
-            for i in tqdm(range(0, len(points), batch_size),
-                          desc="Uploading to Qdrant",
-                          unit="batch"):
-                batch = points[i:i + batch_size]
-                self.client.upsert(
-                    collection_name=self.collection_name,
-                    points=batch
-                )
+            for i in tqdm(
+                range(0, len(points), batch_size),
+                desc="Uploading to Qdrant",
+                unit="batch",
+            ):
+                batch = points[i : i + batch_size]
+                self.client.upsert(collection_name=self.collection_name, points=batch)
 
             logger.info(f"Successfully added {len(points)} texts to the index")
         except Exception as e:
             logger.error(f"Error adding texts: {e}")
             raise
 
-    def search(self,
-               query_embedding: List[float],
-               top_k: int = 5,
-               threshold: float = 0.7) -> List[SearchResult]:
+    def search(
+        self, query_embedding: List[float], top_k: int = 5, threshold: float = 0.7
+    ) -> List[SearchResult]:
         """Search for similar texts
 
         Args:
@@ -140,7 +143,7 @@ class TextIndexer:
                 collection_name=self.collection_name,
                 query_vector=query_embedding,
                 limit=top_k,
-                score_threshold=threshold
+                score_threshold=threshold,
             )
 
             results.sort(key=lambda x: x.score, reverse=True)
@@ -150,8 +153,9 @@ class TextIndexer:
                     text=r.payload["text"],
                     score=r.score,
                     language=r.payload["language"],
-                    metadata=r.payload.get("metadata", {})
-                ) for r in results
+                    metadata=r.payload.get("metadata", {}),
+                )
+                for r in results
             ]
         except Exception as e:
             logger.error(f"Error searching: {e}")
@@ -171,8 +175,8 @@ class TextIndexer:
                 "metadata": self.metadata,
                 "config": {
                     "collection_name": self.collection_name,
-                    "dimension": self.dimension
-                }
+                    "dimension": self.dimension,
+                },
             }
 
             with open(os.path.join(path, "state.json"), "w") as f:
@@ -189,7 +193,7 @@ class TextIndexer:
                         limit=100,
                         offset=offset,
                         with_vectors=True,
-                        with_payload=True
+                        with_payload=True,
                     )
 
                     if not batch:
@@ -200,12 +204,18 @@ class TextIndexer:
                             logger.warning(f"Skipping point {point.id} with no vector")
                             continue
 
-                        vector_list = point.vector.tolist() if hasattr(point.vector, 'tolist') else list(point.vector)
-                        vectors_data.append({
-                            "id": point.id,
-                            "vector": vector_list,
-                            "payload": point.payload
-                        })
+                        vector_list = (
+                            point.vector.tolist()
+                            if hasattr(point.vector, "tolist")
+                            else list(point.vector)
+                        )
+                        vectors_data.append(
+                            {
+                                "id": point.id,
+                                "vector": vector_list,
+                                "payload": point.payload,
+                            }
+                        )
 
                     pbar.update(len(batch))
 
@@ -245,31 +255,38 @@ class TextIndexer:
             batch_size = 100
             total_batches = (len(vectors_data) + batch_size - 1) // batch_size
 
-            for i in tqdm(range(0, len(vectors_data), batch_size),
-                          desc="Loading vectors",
-                          total=total_batches,
-                          unit="batch"):
-                batch = vectors_data[i:i + batch_size]
+            for i in tqdm(
+                range(0, len(vectors_data), batch_size),
+                desc="Loading vectors",
+                total=total_batches,
+                unit="batch",
+            ):
+                batch = vectors_data[i : i + batch_size]
                 points = []
                 for item in batch:
                     if not isinstance(item["vector"], list):
-                        logger.warning(f"Skipping invalid vector format for item {item['id']}")
+                        logger.warning(
+                            f"Skipping invalid vector format for item {item['id']}"
+                        )
                         continue
 
                     if len(item["vector"]) != self.dimension:
-                        logger.warning(f"Skipping vector with wrong dimension for item {item['id']}")
+                        logger.warning(
+                            f"Skipping vector with wrong dimension for item {item['id']}"
+                        )
                         continue
 
-                    points.append(models.PointStruct(
-                        id=item["id"],
-                        vector=item["vector"],
-                        payload=item["payload"]
-                    ))
+                    points.append(
+                        models.PointStruct(
+                            id=item["id"],
+                            vector=item["vector"],
+                            payload=item["payload"],
+                        )
+                    )
 
                 if points:
                     self.client.upsert(
-                        collection_name=self.collection_name,
-                        points=points
+                        collection_name=self.collection_name, points=points
                     )
 
             logger.info(f"Loaded index from {path} with {len(vectors_data)} vectors")
@@ -293,7 +310,7 @@ class TextIndexer:
                     collection_name=self.collection_name,
                     limit=100,
                     offset=offset,
-                    with_payload=True
+                    with_payload=True,
                 )
 
                 if not batch:
@@ -311,7 +328,6 @@ class TextIndexer:
         except Exception as e:
             logger.error(f"Error getting language summary: {e}")
             return {}
-
 
     def __len__(self) -> int:
         """Return the number of documents in the index"""

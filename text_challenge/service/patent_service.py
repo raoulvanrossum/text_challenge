@@ -1,22 +1,27 @@
 from pathlib import Path
 from typing import List, Optional
-from dataclasses import dataclass
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
 from loguru import logger
 import langdetect
 
 # Internal imports should match your structure
-from text_challenge.service.schemas import SearchRequest, SearchResponse, SearchResultItem
+from text_challenge.service.schemas import (
+    SearchRequest,
+    SearchResponse,
+    SearchResultItem,
+)
 from text_challenge.core.processor import ProcessedText
 from text_challenge.core.indexer import TextIndexer
 from text_challenge.data_manager.data_manager import DataManager, ProcessingConfig
 
 
 class PatentSearchService:
-    def __init__(self,
-                 model_name: str = "intfloat/multilingual-e5-small",
-                 config: Optional[ProcessingConfig] = None):
+    def __init__(
+        self,
+        model_name: str = "intfloat/multilingual-e5-small",
+        config: Optional[ProcessingConfig] = None,
+    ):
         """
         Initialize the patent search service.
 
@@ -53,7 +58,7 @@ class PatentSearchService:
         try:
             return langdetect.detect(text)
         except:
-            return 'unknown'
+            return "unknown"
 
     def search(self, request: SearchRequest) -> SearchResponse:
         """
@@ -73,7 +78,7 @@ class PatentSearchService:
         similar_texts = self.indexer.search(
             query_embedding=query_embedding.tolist(),
             top_k=request.max_results,
-            threshold=request.threshold
+            threshold=request.threshold,
         )
 
         # Convert to SearchResultItem objects
@@ -83,7 +88,7 @@ class PatentSearchService:
                 similarity=result.score,
                 language=result.language,
                 metadata=result.metadata,
-                explanation=f"Similarity score: {result.score:.3f}"
+                explanation=f"Similarity score: {result.score:.3f}",
             )
             for result in similar_texts
         ]
@@ -93,13 +98,10 @@ class PatentSearchService:
             "keywords": request.keywords,
             "threshold": request.threshold,
             "max_results": request.max_results,
-            "language": request.language
+            "language": request.language,
         }
 
-        return SearchResponse(
-            results=results,
-            query_info=query_info
-        )
+        return SearchResponse(results=results, query_info=query_info)
 
     def add_texts(self, texts: List[str]) -> None:
         """
@@ -116,9 +118,7 @@ class PatentSearchService:
                 text=text,
                 embedding=embedding,
                 language=language,
-                metadata={
-                    "added_date": datetime.now().isoformat()
-                }
+                metadata={"added_date": datetime.now().isoformat()},
             )
             processed_texts.append(processed_text)
 

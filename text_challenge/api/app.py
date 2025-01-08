@@ -1,10 +1,8 @@
-# text_challenge/api/app.py
-
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pathlib import Path
 
 from text_challenge.api.endpoints import router, initialize_service
 from text_challenge.service.patent_service import PatentSearchService
@@ -26,10 +24,12 @@ app.add_middleware(
 static_path = Path(__file__).parent.parent / "static"
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 
+
 @app.get("/")
 async def serve_index():
     """Serve the main index.html page"""
     return FileResponse(str(static_path / "index.html"))
+
 
 # Include the router
 app.include_router(router, prefix="/api")
@@ -47,15 +47,12 @@ async def startup_event():
 
     # Initialize config
     config = ProcessingConfig(
-        use_cache=True,
-        cache_path=cache_path,
-        force_reprocess=False
+        use_cache=True, cache_path=cache_path, force_reprocess=False
     )
 
     # Initialize service
     service = PatentSearchService(
-        model_name="intfloat/multilingual-e5-small",
-        config=config
+        model_name="intfloat/multilingual-e5-small", config=config
     )
 
     # Load the data

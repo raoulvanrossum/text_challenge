@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from text_challenge.service.patent_service import PatentSearchService

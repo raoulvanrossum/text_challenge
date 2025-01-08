@@ -3,14 +3,17 @@ from loguru import logger
 
 from text_challenge.service.patent_service import PatentSearchService
 from text_challenge.data_manager.data_manager import ProcessingConfig
-from text_challenge.service.schemas import SearchRequest, SearchResponse, SearchResultItem
+from text_challenge.service.schemas import (
+    SearchRequest,
+    SearchResponse,
+    SearchResultItem,
+)
 from text_challenge.utils.logger import setup_logging
 
 
 def main():
     # Setup basic logging
     setup_logging(stdout_level="INFO")
-
 
     try:
         logger.info("Starting Patent Search Service")
@@ -25,35 +28,30 @@ def main():
 
         # Initialize config
         config = ProcessingConfig(
-            use_cache=True,
-            cache_path=cache_path,
-            force_reprocess=False
+            use_cache=True, cache_path=cache_path, force_reprocess=False
         )
 
         # Initialize service
         logger.info("Initializing service...")
         service = PatentSearchService(
-            model_name="intfloat/multilingual-e5-small",
-            config=config
+            model_name="intfloat/multilingual-e5-small", config=config
         )
 
         # Load the data
         logger.info(f"Loading data from {data_path}")
         service.initialize_with_data(data_path)
 
-
         # Rest of your main function...
         stats = service.get_statistics()
         logger.info(f"Total patents loaded: {stats['total_patents']}")
 
-        request: SearchRequest = SearchRequest(["robot", "nano"], threshold=0.7, max_results=10)
-        response : SearchResponse = service.search(request)
+        request: SearchRequest = SearchRequest(
+            ["robot", "nano"], threshold=0.7, max_results=10
+        )
+        response: SearchResponse = service.search(request)
 
         for res in response.results:
             print(res.similarity, res.text[:100])
-
-
-
 
     except Exception as e:
         logger.exception(f"Error in main: {e}")

@@ -1,12 +1,11 @@
-# text_challenge/utils/data_manager.py
 from dataclasses import dataclass
 from pathlib import Path
 from datetime import datetime
 import pickle
 from typing import List, Optional
 from tqdm import tqdm
-from text_challenge.core.processor import ProcessedText
 from loguru import logger
+from text_challenge.core.processor import ProcessedText
 
 
 @dataclass
@@ -31,7 +30,9 @@ class DataManager:
             try:
                 processed_texts = self._load_from_cache()
                 if processed_texts:
-                    logger.info(f"Loaded {len(processed_texts)} processed patents from cache")
+                    logger.info(
+                        f"Loaded {len(processed_texts)} processed patents from cache"
+                    )
                     return processed_texts
             except Exception as e:
                 logger.error(f"Error loading cache: {e}. Will reprocess data.")
@@ -41,7 +42,7 @@ class DataManager:
     def _load_from_cache(self) -> Optional[List[ProcessedText]]:
         """Load processed data from cache."""
         if self.config.cache_path.exists():
-            with open(self.config.cache_path, 'rb') as f:
+            with open(self.config.cache_path, "rb") as f:
                 return pickle.load(f)
         return None
 
@@ -51,10 +52,10 @@ class DataManager:
 
         # Read raw data
         try:
-            with open(data_path, 'r', encoding='utf-8') as f:
+            with open(data_path, "r", encoding="utf-8") as f:
                 content = f.read()
         except UnicodeDecodeError:
-            with open(data_path, 'r', encoding='latin-1') as f:
+            with open(data_path, "r", encoding="latin-1") as f:
                 content = f.read()
 
         patent_texts = [abstract for abstract in content.split("\n")]
@@ -72,8 +73,8 @@ class DataManager:
                     metadata={
                         "processed_date": datetime.now().isoformat(),
                         "char_length": len(text),
-                        "word_count": len(text.split())
-                    }
+                        "word_count": len(text.split()),
+                    },
                 )
                 processed_texts.append(processed_text)
             except Exception as e:
@@ -90,9 +91,6 @@ class DataManager:
         """Save processed data to cache."""
         logger.info(f"Saving {len(processed_texts)} processed patents to cache...")
         self.config.cache_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.config.cache_path, 'wb') as f:
+        with open(self.config.cache_path, "wb") as f:
             pickle.dump(processed_texts, f)
         logger.info("Cache saved successfully")
-
-
-

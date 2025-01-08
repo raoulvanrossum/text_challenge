@@ -5,15 +5,16 @@ Text processor module for handling multilingual text preprocessing and analysis.
 import re
 from typing import List, Dict, Optional
 from dataclasses import dataclass
+from functools import lru_cache
 from loguru import logger
 from langdetect import detect, LangDetectException
 from sentence_transformers import SentenceTransformer
-from functools import lru_cache
 
 
 @dataclass
 class ProcessedText:
     """Container for processed text and its metadata."""
+
     text: str
     language: str
     embedding: Optional[List[float]] = None
@@ -24,9 +25,9 @@ class TextProcessor:
     """Handles text preprocessing, language detection, and embedding generation."""
 
     def __init__(
-            self,
-            model_name: str = "paraphrase-multilingual-mpnet-base-v2",
-            min_text_length: int = 10,
+        self,
+        model_name: str = "paraphrase-multilingual-mpnet-base-v2",
+        min_text_length: int = 10,
     ):
         """
         Initialize the text processor.
@@ -53,7 +54,7 @@ class TextProcessor:
         text = " ".join(text.split())
 
         # Remove special characters while preserving unicode
-        text = re.sub(r'[^\w\s\u0080-\uffff]', ' ', text)
+        text = re.sub(r"[^\w\s\u0080-\uffff]", " ", text)
 
         # Normalize whitespace again
         text = " ".join(text.split())
@@ -90,7 +91,9 @@ class TextProcessor:
         embedding = self.model.encode(text, convert_to_tensor=False)
         return embedding.tolist()
 
-    def process_text(self, text: str, generate_embedding: bool = True) -> Optional[ProcessedText]:
+    def process_text(
+        self, text: str, generate_embedding: bool = True
+    ) -> Optional[ProcessedText]:
         """
         Process input text by cleaning, detecting language, and optionally generating embedding.
 
@@ -128,17 +131,11 @@ class TextProcessor:
         }
 
         return ProcessedText(
-            text=cleaned_text,
-            language=language,
-            embedding=embedding,
-            metadata=metadata
+            text=cleaned_text, language=language, embedding=embedding, metadata=metadata
         )
 
     def batch_process(
-            self,
-            texts: List[str],
-            batch_size: int = 32,
-            generate_embeddings: bool = True
+        self, texts: List[str], batch_size: int = 32, generate_embeddings: bool = True
     ) -> List[ProcessedText]:
         """
         Process a batch of texts efficiently.
@@ -155,7 +152,7 @@ class TextProcessor:
 
         # Process texts in batches
         for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
+            batch = texts[i : i + batch_size]
 
             # Clean and detect language for each text
             processed_batch = []
