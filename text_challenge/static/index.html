@@ -1,0 +1,92 @@
+<!-- text_challenge/static/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patent Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .similarity {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patent Search</h1>
+    <div>
+        <input type="text" id="keywords" placeholder="Enter keywords (comma-separated)">
+        <input type="number" id="maxResults" value="10" min="1" max="100">
+        <input type="number" id="threshold" value="0.7" min="0" max="1" step="0.1">
+        <button onclick="search()">Search</button>
+    </div>
+    <div id="results"></div>
+
+    <script>
+        async function search() {
+            const keywords = document.getElementById('keywords').value.split(',').map(k => k.trim());
+            const maxResults = parseInt(document.getElementById('maxResults').value);
+            const threshold = parseFloat(document.getElementById('threshold').value);
+
+            try {
+                const response = await fetch('/api/search', {  // Updated endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        keywords: keywords,
+                        max_results: maxResults,
+                        threshold: threshold
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <div class="error">
+                        Error performing search: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (!data.results || data.results.length === 0) {
+                resultsDiv.innerHTML = '<div>No results found</div>';
+                return;
+            }
+
+            data.results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <div class="similarity">Similarity: ${(result.similarity * 100).toFixed(1)}%</div>
+                    <div>Language: ${result.language}</div>
+                    <div>${result.text}</div>
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html>
