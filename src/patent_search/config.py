@@ -9,5 +9,3 @@ EMBEDDING_SIZE = 384
 
 # MODEL_NAME = "intfloat/multilingual-e5-large"
 # EMBEDDING_SIZE = 1024
-
-

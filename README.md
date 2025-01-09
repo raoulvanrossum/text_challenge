@@ -145,6 +145,12 @@ Each search result provides:
 - Language information
 - Original metadata
 
+## Embedding Model Selection
+
+### Current Model
+The system uses `intfloat/multilingual-e5-small` as the default embedding model. 
+You are able to change this in the src/patent_search.config.py.
+
 ## Adding New Patents via API
 
 You can add new patents to the system using the API endpoint `/api/patents/add`. Here's how to do it using curl:
