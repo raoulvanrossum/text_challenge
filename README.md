@@ -48,7 +48,7 @@ poetry run uvicorn patent_search.api.app:app
 
 ### Upload Patent Text
 ```http
-POST /upload
+POST /api/patents/add
 ```
 Upload new patent texts to the search engine.
 
