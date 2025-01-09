@@ -3,11 +3,10 @@ from loguru import logger
 from typing import Optional, Dict
 
 
-
 def setup_logging(
-        stdout_level: str = "INFO",
-        stdout_format: Optional[str] = None,
-        additional_sinks: Optional[Dict] = None
+    stdout_level: str = "INFO",
+    stdout_format: Optional[str] = None,
+    additional_sinks: Optional[Dict] = None,
 ) -> None:
     """
     Configure logging for the application.
@@ -33,7 +32,7 @@ def setup_logging(
         sys.stdout,
         colorize=True,
         format=stdout_format or default_format,
-        level=stdout_level
+        level=stdout_level,
     )
 
     # Add additional sinks if provided
@@ -49,6 +48,6 @@ file_config = {
         "retention": "10 days",
         "compression": "zip",
         "format": "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        "level": "DEBUG"
+        "level": "DEBUG",
     }
 }

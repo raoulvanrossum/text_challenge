@@ -4,11 +4,12 @@ Tests for the text processor module.
 
 import pytest
 from text_challenge.core.processor import TextProcessor, ProcessedText
+from text_challenge.config import MODEL_NAME
 
 @pytest.fixture
 def processor():
     """Create a TextProcessor instance for testing."""
-    return TextProcessor()
+    return TextProcessor(model_name=MODEL_NAME)
 
 def test_clean_text(processor):
     """Test text cleaning functionality and punctuation handling."""

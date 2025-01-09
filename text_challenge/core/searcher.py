@@ -3,11 +3,13 @@ from dataclasses import dataclass
 from .processor import TextProcessor
 from .indexer import TextIndexer, SearchResult
 
+
 @dataclass
 class SearchQuery:
     text: str
     top_k: int = 5
     threshold: float = 0.7
+
 
 class TextSearcher:
     def __init__(self, processor: TextProcessor, indexer: TextIndexer):
@@ -25,7 +27,7 @@ class TextSearcher:
         results = self.indexer.search(
             query_embedding=processed_query.embedding,
             top_k=query.top_k,
-            threshold=query.threshold
+            threshold=query.threshold,
         )
 
         return results

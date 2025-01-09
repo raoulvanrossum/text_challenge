@@ -3,13 +3,14 @@ import tempfile
 import os
 import uuid
 from text_challenge.core.indexer import TextIndexer, ProcessedText
+from text_challenge.config import EMBEDDING_SIZE
 
 @pytest.fixture
 def sample_texts():
     return [
         ProcessedText(
             text="This is the first test document.",
-            embedding=[0.1] * 384,
+            embedding=[0.1] * EMBEDDING_SIZE,
             language="en",
             metadata={"id": 3}
         )
@@ -49,7 +50,7 @@ def test_save_load_index(indexer, sample_texts):
         # Create new indexer and load saved index
         new_indexer = TextIndexer(
             collection_name=f"test_collection_new_{uuid.uuid4()}",
-            dimension=384,
+            dimension=EMBEDDING_SIZE,
             load_from=index_path
         )
 
@@ -70,7 +71,7 @@ def test_search(indexer, sample_texts):
 
     # Search
     results = indexer.search(
-        query_embedding=[0.1] * 384,
+        query_embedding=[0.1] * EMBEDDING_SIZE,
         top_k=1
     )
 

@@ -3,14 +3,14 @@ from unittest.mock import Mock, patch
 from text_challenge.core.processor import TextProcessor, ProcessedText
 from text_challenge.core.indexer import TextIndexer, SearchResult
 from text_challenge.core.searcher import TextSearcher, SearchQuery
-from text_challenge.config import embedding_size
+from text_challenge.config import EMBEDDING_SIZE
 
 @pytest.fixture
 def mock_processor():
     processor = Mock(spec=TextProcessor)
     processor.process_text.return_value = ProcessedText(
         text="test",
-        embedding=[0.1] * embedding_size,
+        embedding=[0.1] * EMBEDDING_SIZE,
         language="en"
     )
     return processor
@@ -47,7 +47,7 @@ async def test_search(searcher, mock_processor, mock_indexer):
     
     mock_processor.process_text.assert_called_once_with("test query")
     mock_indexer.search.assert_called_once_with(
-        query_embedding=[0.1] * embedding_size,
+        query_embedding=[0.1] * EMBEDDING_SIZE,
         top_k=5,
         threshold=0.7
     )

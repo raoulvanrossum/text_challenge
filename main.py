@@ -6,9 +6,9 @@ from text_challenge.data_manager.data_manager import ProcessingConfig
 from text_challenge.service.schemas import (
     SearchRequest,
     SearchResponse,
-    SearchResultItem,
 )
 from text_challenge.utils.logger import setup_logging
+from text_challenge.config import MODEL_NAME
 
 
 def main():
@@ -33,9 +33,7 @@ def main():
 
         # Initialize service
         logger.info("Initializing service...")
-        service = PatentSearchService(
-            model_name="intfloat/multilingual-e5-small", config=config
-        )
+        service = PatentSearchService(model_name=MODEL_NAME, config=config)
 
         # Load the data
         logger.info(f"Loading data from {data_path}")

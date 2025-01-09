@@ -1,4 +1,3 @@
-<!-- text_challenge/static/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,26 +19,100 @@
             color: #666;
             font-size: 0.9em;
         }
+        .search-controls {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-description {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #keywords {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Patent Search</h1>
-    <div>
-        <input type="text" id="keywords" placeholder="Enter keywords (comma-separated)">
-        <input type="number" id="maxResults" value="10" min="1" max="100">
-        <input type="number" id="threshold" value="0.7" min="0" max="1" step="0.1">
-        <button onclick="search()">Search</button>
+    <div class="search-controls">
+        <div class="input-group">
+            <label for="keywords">Keywords:</label>
+            <input type="text" id="keywords" placeholder="Enter keywords (space-separated)">
+            <div class="input-description">Enter multiple keywords separated by spaces (e.g., oxidation metal process)</div>
+        </div>
+
+        <div class="input-group">
+            <label for="threshold">Similarity Threshold: <span id="thresholdValue">0.7</span></label>
+            <input type="range" id="threshold" value="0.7" min="0.5" max="0.9" step="0.1" style="width: 100%">
+            <div class="range-labels">
+                <span>0.5 (More results, less precise)</span>
+                <span>0.7 (Balanced)</span>
+                <span>0.9 (Fewer results, more precise)</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="maxResults">Maximum Results: <span id="maxResultsValue">10</span></label>
+            <input type="range" id="maxResults" value="10" min="5" max="50" step="5" style="width: 100%">
+            <div class="range-labels">
+                <span>5 (Quick overview)</span>
+                <span>25 (Standard)</span>
+                <span>50 (Comprehensive)</span>
+            </div>
+        </div>
+
+        <button onclick="search()">Search Patents</button>
     </div>
     <div id="results"></div>
 
     <script>
+        // Add listeners for range inputs to update their value displays
+        document.getElementById('threshold').addEventListener('input', function(e) {
+            document.getElementById('thresholdValue').textContent = e.target.value;
+        });
+
+        document.getElementById('maxResults').addEventListener('input', function(e) {
+            document.getElementById('maxResultsValue').textContent = e.target.value;
+        });
+
         async function search() {
             const keywords = document.getElementById('keywords').value.split(',').map(k => k.trim());
             const maxResults = parseInt(document.getElementById('maxResults').value);
             const threshold = parseFloat(document.getElementById('threshold').value);
 
             try {
-                const response = await fetch('/api/search', {  // Updated endpoint
+                const response = await fetch('/api/search', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -83,6 +156,7 @@
                     <div class="similarity">Similarity: ${(result.similarity * 100).toFixed(1)}%</div>
                     <div>Language: ${result.language}</div>
                     <div>${result.text}</div>
+                    <div class="input-description">${result.explanation || ''}</div>
                 `;
                 resultsDiv.appendChild(resultDiv);
             });

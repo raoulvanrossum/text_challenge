@@ -26,7 +26,7 @@ class TextProcessor:
 
     def __init__(
         self,
-        model_name: str = "paraphrase-multilingual-mpnet-base-v2",
+        model_name: str,
         min_text_length: int = 10,
     ):
         """

@@ -1,6 +1,6 @@
 import pytest
 from text_challenge.core.indexer import TextIndexer, ProcessedText
-
+from text_challenge.config import EMBEDDING_SIZE
 
 @pytest.fixture
 def indexer():
@@ -12,13 +12,13 @@ def test_add_and_search(indexer):
     processed_texts = [
         ProcessedText(
             text="Test document 1",
-            embedding=[1.0] + [0.0] * 383,  # Make first document clearly closest to query
+            embedding=[1.0] + [0.0] * (EMBEDDING_SIZE-1),  # Make first document clearly closest to query
             language="en",
             metadata={"source": "test"}
         ),
         ProcessedText(
             text="Test document 2",
-            embedding=[0.0] * 384,
+            embedding=[0.0] * EMBEDDING_SIZE,
             language="en",
             metadata={"source": "test"}
         )
@@ -29,7 +29,7 @@ def test_add_and_search(indexer):
 
     # Search with query similar to first document
     results = indexer.search(
-        query_embedding=[1.0] + [0.0] * 383,
+        query_embedding=[1.0] + [0.0] * (EMBEDDING_SIZE-1),
         top_k=1
     )
 
