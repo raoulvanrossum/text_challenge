@@ -91,9 +91,7 @@ class TextProcessor:
         embedding = self.model.encode(text, convert_to_tensor=False)
         return embedding.tolist()
 
-    def process_text(
-        self, text: str, generate_embedding: bool = True
-    ) -> Optional[ProcessedText]:
+    def process_text(self, text: str, generate_embedding: bool = True) -> Optional[ProcessedText]:
         """
         Process input text by cleaning, detecting language, and optionally generating embedding.
 

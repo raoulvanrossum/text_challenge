@@ -93,9 +93,7 @@ class TextIndexer:
         try:
             points = []
             # Add progress bar for processing texts
-            for pt in tqdm(
-                processed_texts, desc="Processing texts for indexing", unit="text"
-            ):
+            for pt in tqdm(processed_texts, desc="Processing texts for indexing", unit="text"):
                 point_id = str(uuid.uuid4())
                 points.append(
                     models.PointStruct(
@@ -267,9 +265,7 @@ class TextIndexer:
                 points = []
                 for item in batch:
                     if not isinstance(item["vector"], list):
-                        logger.warning(
-                            f"Skipping invalid vector format for item {item['id']}"
-                        )
+                        logger.warning(f"Skipping invalid vector format for item {item['id']}")
                         continue
 
                     if len(item["vector"]) != self.dimension:
@@ -287,9 +283,7 @@ class TextIndexer:
                     )
 
                 if points:
-                    self.client.upsert(
-                        collection_name=self.collection_name, points=points
-                    )
+                    self.client.upsert(collection_name=self.collection_name, points=points)
 
             logger.info(f"Loaded index from {path} with {len(vectors_data)} vectors")
         except Exception as e:

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from dataclasses import dataclass
 from .processor import TextProcessor
 from .indexer import TextIndexer, SearchResult

@@ -49,9 +49,7 @@ class PatentSearchService:
         except:
             return "unknown"
 
-    def _search_single_keyword(
-        self, keyword: str, max_results: int, threshold: float
-    ) -> List:
+    def _search_single_keyword(self, keyword: str, max_results: int, threshold: float) -> List:
         """Search for patents matching a single keyword."""
         query_embedding = self.model.encode(keyword, normalize_embeddings=True)
         return self.indexer.search(
@@ -154,7 +152,9 @@ class PatentSearchService:
 
         return SearchResponse(results=merged_results, query_info=query_info)
 
-    def add_texts(self, texts: List[str], metadata: Optional[List[Dict]] = None) -> List[ProcessedText]:
+    def add_texts(
+        self, texts: List[str], metadata: Optional[List[Dict]] = None
+    ) -> List[ProcessedText]:
         """Add new texts to the search index and return processed texts."""
         if metadata is None:
             metadata = [{}] * len(texts)
@@ -170,14 +170,11 @@ class PatentSearchService:
                 enhanced_meta = {
                     "added_date": datetime.now().isoformat(),
                     "processing_status": "success",
-                    **meta  # Include any additional provided metadata
+                    **meta,  # Include any additional provided metadata
                 }
 
                 processed_text = ProcessedText(
-                    text=text,
-                    embedding=embedding,
-                    language=language,
-                    metadata=enhanced_meta
+                    text=text, embedding=embedding, language=language, metadata=enhanced_meta
                 )
                 processed_texts.append(processed_text)
             except Exception as e:

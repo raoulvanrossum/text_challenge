@@ -4,7 +4,7 @@ from loguru import logger
 from src.patent_search.service.patent_service import PatentSearchService
 from src.patent_search.service.schemas import SearchRequest
 
-from src.patent_search.service.schemas import PatentSubmission, BatchPatentSubmission
+from src.patent_search.service.schemas import BatchPatentSubmission
 from typing import Dict
 router = APIRouter()
 
