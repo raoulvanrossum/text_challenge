@@ -27,7 +27,7 @@ This project implements a multilingual search engine for patent texts using mode
 ### Installation
 ```bash
 # Clone the repository
-git clone [your-repo-url]
+git clone git@github.com:raoulvanrossum/text_challenge.git
 cd patent-search
 
 # Install dependencies
