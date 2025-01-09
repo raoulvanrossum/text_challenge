@@ -39,7 +39,7 @@ def main():
         logger.info(f"Loading data from {data_path}")
         service.initialize_with_data(data_path)
 
-        # Rest of your main function...
+
         stats = service.get_statistics()
         logger.info(f"Total patents loaded: {stats['total_patents']}")
 
