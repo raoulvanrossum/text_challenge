@@ -5,13 +5,13 @@ import pickle
 from typing import List, Optional
 from tqdm import tqdm
 from loguru import logger
-from text_challenge.core.processor import ProcessedText
-
+from src.patent_search.core.processor import ProcessedText
+from src.patent_search.config import BASE_FOLDER
 
 @dataclass
 class ProcessingConfig:
     use_cache: bool = True
-    cache_path: Path = Path.cwd() / "data" / "processed" / "processed_patents.pkl"
+    cache_path: Path = BASE_FOLDER / "data" / "processed" / "processed_patents.pkl"
     force_reprocess: bool = False
 
     @property
@@ -94,3 +94,7 @@ class DataManager:
         with open(self.config.cache_path, "wb") as f:
             pickle.dump(processed_texts, f)
         logger.info("Cache saved successfully")
+
+
+if __name__ == "__main__":
+    print(str(Path.cwd()))

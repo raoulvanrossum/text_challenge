@@ -1,14 +1,14 @@
 from pathlib import Path
 from loguru import logger
 
-from text_challenge.service.patent_service import PatentSearchService
-from text_challenge.data_manager.data_manager import ProcessingConfig
-from text_challenge.service.schemas import (
+from src.patent_search.service.patent_service import PatentSearchService
+from src.patent_search.data_manager.data_manager import ProcessingConfig
+from src.patent_search.service.schemas import (
     SearchRequest,
     SearchResponse,
 )
-from text_challenge.utils.logger import setup_logging
-from text_challenge.config import MODEL_NAME
+from src.patent_search.utils.logger import setup_logging
+from src.patent_search.config import MODEL_NAME, BASE_FOLDER
 
 
 def main():
@@ -19,9 +19,8 @@ def main():
         logger.info("Starting Patent Search Service")
 
         # Configure paths
-        base_path = Path(__file__).parent
-        data_path = base_path / "data" / "raw" / "data.txt"
-        cache_path = base_path / "data" / "processed" / "processed_patents.pkl"
+        data_path = BASE_FOLDER / "data" / "raw" / "data.txt"
+        cache_path = BASE_FOLDER / "data" / "processed" / "processed_patents.pkl"
 
         # Create directories if they don't exist
         cache_path.parent.mkdir(parents=True, exist_ok=True)

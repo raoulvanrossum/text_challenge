@@ -1,6 +1,6 @@
 import pytest
-from text_challenge.core.indexer import TextIndexer, ProcessedText
-from text_challenge.config import EMBEDDING_SIZE
+from src.patent_search.core.indexer import TextIndexer, ProcessedText
+from src.patent_search.config import EMBEDDING_SIZE
 
 @pytest.fixture
 def indexer():

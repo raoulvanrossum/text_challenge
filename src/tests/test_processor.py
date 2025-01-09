@@ -3,8 +3,8 @@ Tests for the text processor module.
 """
 
 import pytest
-from text_challenge.core.processor import TextProcessor, ProcessedText
-from text_challenge.config import MODEL_NAME
+from src.patent_search.core.processor import TextProcessor, ProcessedText
+from src.patent_search.config import MODEL_NAME
 
 @pytest.fixture
 def processor():

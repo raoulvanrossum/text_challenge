@@ -1,9 +1,9 @@
 # tests/test_service.py
 import pytest
 from pathlib import Path
-from text_challenge.service.patent_service import PatentSearchService
-from text_challenge.service.schemas import SearchRequest
-from text_challenge.data_manager.data_manager import ProcessingConfig
+from src.patent_search.service.patent_service import PatentSearchService
+from src.patent_search.service.schemas import SearchRequest
+from src.patent_search.data_manager.data_manager import ProcessingConfig
 
 
 @pytest.fixture

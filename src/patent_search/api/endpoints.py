@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from loguru import logger
 
-from text_challenge.service.patent_service import PatentSearchService
-from text_challenge.service.schemas import SearchRequest
+from src.patent_search.service.patent_service import PatentSearchService
+from src.patent_search.service.schemas import SearchRequest
 
 router = APIRouter()
 

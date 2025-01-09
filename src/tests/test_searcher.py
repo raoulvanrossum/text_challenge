@@ -1,9 +1,9 @@
 import pytest
-from unittest.mock import Mock, patch
-from text_challenge.core.processor import TextProcessor, ProcessedText
-from text_challenge.core.indexer import TextIndexer, SearchResult
-from text_challenge.core.searcher import TextSearcher, SearchQuery
-from text_challenge.config import EMBEDDING_SIZE
+from unittest.mock import Mock
+from src.patent_search.core.processor import TextProcessor, ProcessedText
+from src.patent_search.core.indexer import TextIndexer, SearchResult
+from src.patent_search.core.searcher import TextSearcher, SearchQuery
+from src.patent_search.config import EMBEDDING_SIZE
 
 @pytest.fixture
 def mock_processor():

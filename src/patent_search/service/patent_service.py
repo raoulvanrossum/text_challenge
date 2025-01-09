@@ -5,15 +5,15 @@ from sentence_transformers import SentenceTransformer
 from loguru import logger
 import langdetect
 
-from text_challenge.service.schemas import (
+from src.patent_search.service.schemas import (
     SearchRequest,
     SearchResponse,
     SearchResultItem,
 )
-from text_challenge.core.processor import ProcessedText
-from text_challenge.core.indexer import TextIndexer
-from text_challenge.data_manager.data_manager import DataManager, ProcessingConfig
-from text_challenge.config import MODEL_NAME
+from src.patent_search.core.processor import ProcessedText
+from src.patent_search.core.indexer import TextIndexer
+from src.patent_search.data_manager.data_manager import DataManager, ProcessingConfig
+from src.patent_search.config import MODEL_NAME
 
 KEYWORD_BONUS = 0.6
 

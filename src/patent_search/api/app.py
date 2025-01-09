@@ -4,11 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from text_challenge.api.endpoints import router, initialize_service
-from text_challenge.service.patent_service import PatentSearchService
-from text_challenge.data_manager.data_manager import ProcessingConfig
-from text_challenge.utils.logger import setup_logging
-from text_challenge.config import MODEL_NAME, EMBEDDING_SIZE
+from src.patent_search.api.endpoints import router, initialize_service
+from src.patent_search.service.patent_service import PatentSearchService
+from src.patent_search.data_manager.data_manager import ProcessingConfig
+from src.patent_search.utils.logger import setup_logging
+from src.patent_search.config import MODEL_NAME, BASE_FOLDER
 
 app = FastAPI(title="Patent Search API")
 
@@ -42,9 +42,8 @@ async def startup_event():
     setup_logging(stdout_level="INFO")
 
     # Configure paths
-    base_path = Path(__file__).parent.parent.parent
-    data_path = base_path / "data" / "raw" / "data.txt"
-    cache_path = base_path / "data" / "processed" / "processed_patents.pkl"
+    data_path = BASE_FOLDER / "data" / "raw" / "data.txt"
+    cache_path = BASE_FOLDER / "data" / "processed" / "processed_patents.pkl"
 
     # Initialize config
     config = ProcessingConfig(

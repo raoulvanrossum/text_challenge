@@ -11,7 +11,7 @@ from tqdm import tqdm
 from qdrant_client.http import models
 from qdrant_client import QdrantClient
 
-from text_challenge.config import EMBEDDING_SIZE
+from src.patent_search.config import EMBEDDING_SIZE
 
 
 @dataclass
