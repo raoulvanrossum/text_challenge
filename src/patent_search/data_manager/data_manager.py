@@ -5,8 +5,10 @@ import pickle
 from typing import List, Optional
 from tqdm import tqdm
 from loguru import logger
+import threading
 from src.patent_search.core.processor import ProcessedText
 from src.patent_search.config import BASE_FOLDER
+
 
 @dataclass
 class ProcessingConfig:
@@ -23,6 +25,7 @@ class DataManager:
     def __init__(self, service, config: Optional[ProcessingConfig] = None):
         self.service = service
         self.config = config or ProcessingConfig()
+        self._cache_lock = threading.Lock()  # Add thread safety
 
     def load_or_process_data(self, data_path: Path) -> List[ProcessedText]:
         """Load data from cache if available, otherwise process and cache it."""
@@ -30,9 +33,7 @@ class DataManager:
             try:
                 processed_texts = self._load_from_cache()
                 if processed_texts:
-                    logger.info(
-                        f"Loaded {len(processed_texts)} processed patents from cache"
-                    )
+                    logger.info(f"Loaded {len(processed_texts)} processed patents from cache")
                     return processed_texts
             except Exception as e:
                 logger.error(f"Error loading cache: {e}. Will reprocess data.")
@@ -95,6 +96,24 @@ class DataManager:
             pickle.dump(processed_texts, f)
         logger.info("Cache saved successfully")
 
+    def append_to_cache(self, new_processed_texts: List[ProcessedText]) -> None:
+        """Append new processed texts to the existing cache."""
+        if not self.config.use_cache:
+            return
 
-if __name__ == "__main__":
-    print(str(Path.cwd()))
+        with self._cache_lock:
+            try:
+                # Load existing cache
+                existing_texts = self._load_from_cache() or []
+
+                # Append new texts
+                updated_texts = existing_texts + new_processed_texts
+
+                # Save updated cache
+                self._save_to_cache(updated_texts)
+                logger.info(
+                    f"Successfully appended {len(new_processed_texts)} new patents to cache"
+                )
+            except Exception as e:
+                logger.error(f"Error updating cache: {e}")
+                raise

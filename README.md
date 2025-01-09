@@ -4,17 +4,17 @@
 This project implements a multilingual search engine for patent texts using modern NLP techniques. It can process and search through patent documents in multiple languages, utilizing sentence embeddings for semantic search capabilities.
 
 ### Key Features
-- 🌐 Multilingual support with automatic language detection
-- 🔍 Semantic search using sentence transformers
-- ⚡ Fast vector similarity search with Qdrant
+- Multilingual support with automatic language detection
+- Semantic search using sentence transformers
+- Fast vector similarity search with Qdrant 
 - 🚀 REST API interface using FastAPI
-- 💾 Efficient data caching system
+- Efficient data caching system
 
 ## Technical Stack
 - **Python 3.11**
 - **FastAPI** - Web framework for the API
 - **Sentence-Transformers** - For text embeddings
-- **Qdrant** - Vector similarity search
+- **Qdrant** - Vector similarity search ((The current implementation uses Qdrant's in-memory storage mode for development and testing))
 - **LangDetect** - Language detection
 - **Poetry** - Dependency management
 
@@ -145,10 +145,43 @@ Each search result provides:
 - Language information
 - Original metadata
 
+## Adding New Patents via API
+
+You can add new patents to the system using the API endpoint `/api/patents/add`. Here's how to do it using curl:
+The patent upload service is designed to be robust and non-blocking, implementing several reliability features:
+
+#### 1. Background Processing
+- Upload requests are processed asynchronously using FastAPI's background tasks
+- The main upload process is non-blocking, allowing the API to remain responsive
+- Cache updates happen in the background after the index is updated
+### Basic Usage
+
+```bash
+curl -X POST http://localhost:8000/api/patents/add \
+-H "Content-Type: application/json" \
+-d '{
+    "patents": [
+        {
+            "text": "Your patent text here",
+            "metadata": {
+                "source": "manual_upload",
+                "category": "Technology"
+            }
+        }
+    ]
+}'
+```
+### How the Service Handles Uploads
+
+The patent upload service is designed to be robust and non-blocking, implementing several reliability features:
+
+#### 1. Background Processing
+- Upload requests are processed asynchronously using FastAPI's background tasks
+- The main upload process is non-blocking, allowing the API to remain responsive
+- Cache updates happen in the background after the index is updated
 
 
-## Limitations
-- Requires sufficient memory for embedding operations
+## Limitations/improvements
+- Requires sufficient memory for embedding operations (the system processes patent abstracts as complete units rather than individual words or sentences for this reson)
 - Limited to languages supported by the underlying model
-
-
+- Qdrant server (not memory)

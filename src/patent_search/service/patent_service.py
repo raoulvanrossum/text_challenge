@@ -154,22 +154,42 @@ class PatentSearchService:
 
         return SearchResponse(results=merged_results, query_info=query_info)
 
-    def add_texts(self, texts: List[str]) -> None:
-        """Add new texts to the search index."""
-        processed_texts = []
-        for text in texts:
-            language = self.detect_language(text)
-            embedding = self.model.encode(text)
-            processed_text = ProcessedText(
-                text=text,
-                embedding=embedding,
-                language=language,
-                metadata={"added_date": datetime.now().isoformat()},
-            )
-            processed_texts.append(processed_text)
+    def add_texts(self, texts: List[str], metadata: Optional[List[Dict]] = None) -> List[ProcessedText]:
+        """Add new texts to the search index and return processed texts."""
+        if metadata is None:
+            metadata = [{}] * len(texts)
 
-        self.indexer.add_texts(processed_texts)
-        logger.info(f"Added {len(processed_texts)} new texts to index")
+        processed_texts = []
+        for text, meta in zip(texts, metadata):
+            try:
+                language = self.detect_language(text)
+                # Convert embedding to list of floats
+                embedding = self.model.encode(text).tolist()  # Add .tolist() here
+
+                # Enhance metadata
+                enhanced_meta = {
+                    "added_date": datetime.now().isoformat(),
+                    "processing_status": "success",
+                    **meta  # Include any additional provided metadata
+                }
+
+                processed_text = ProcessedText(
+                    text=text,
+                    embedding=embedding,
+                    language=language,
+                    metadata=enhanced_meta
+                )
+                processed_texts.append(processed_text)
+            except Exception as e:
+                logger.error(f"Error processing text: {e}")
+                continue
+
+        # Add to index if any texts were processed successfully
+        if processed_texts:
+            self.indexer.add_texts(processed_texts)
+            logger.info(f"Added {len(processed_texts)} new texts to index")
+
+        return processed_texts
 
     def get_languages_summary(self) -> dict:
         """Get a summary of languages in the index."""

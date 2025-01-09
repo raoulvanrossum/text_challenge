@@ -1,10 +1,8 @@
-# tests/test_service.py
 import pytest
 from pathlib import Path
 from src.patent_search.service.patent_service import PatentSearchService
 from src.patent_search.service.schemas import SearchRequest
 from src.patent_search.data_manager.data_manager import ProcessingConfig
-
 
 @pytest.fixture
 def service_with_real_data():

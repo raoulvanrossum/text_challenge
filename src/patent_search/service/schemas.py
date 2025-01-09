@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict
 
 
 @dataclass
@@ -33,3 +34,21 @@ class SearchResponse:
     results: List[SearchResultItem]
     query_info: Dict[str, Any]
     timestamp: datetime = datetime.now()
+
+
+class PatentSubmission(BaseModel):
+    text: str
+    metadata: Optional[Dict[str, Any]] = None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "text": "A new patent abstract about technology...",
+                "metadata": {"source": "manual_input", "submission_date": "2024-03-14"},
+            }
+        }
+    )
+
+
+class BatchPatentSubmission(BaseModel):
+    patents: List[PatentSubmission]
