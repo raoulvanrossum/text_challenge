@@ -30,6 +30,10 @@ This project implements a multilingual search engine for patent texts using mode
 git clone git@github.com:raoulvanrossum/text_challenge.git
 cd text_challenge
 
+
+# Optional: 
+poetry env use python3.11
+
 # Install dependencies
 poetry install
 ```
